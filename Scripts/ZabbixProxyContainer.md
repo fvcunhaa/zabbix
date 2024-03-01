@@ -8,6 +8,21 @@ ZBX_HOSTNAME= Nome do seu Proxy
 
 ZBX_TLSPSKIDENTITY= Por padrão coloco o mesmo nome do proxy
 
+Você deve salvar esse Script que está abaixo com o nome que desejar, recomendo como zabbixproxy.sh pois é em shellscript e não pode esquecer o ".sh", você deve dar permissão a esse script.
+
+## Comando para criar o arquivo
+
+```sh
+nano zabbixproxy.sh
+```
+## Comando para dar permissão ao script
+
+```sh
+chmod +x nomedoscript
+```
+
+# Abaixo conteúdo do script
+
 ```sh
 #!/bin/bash
 
