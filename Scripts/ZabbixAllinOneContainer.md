@@ -1,6 +1,6 @@
 # Script em Shell Automatizando Zabbix em Container
 
-Esse script ele instala o docker, depois cria o diretório conforme o padrão que realizo em produção, logo após isso ele cria o docker-compose.yaml e lembrando que tem campos no arquivo do docker compose que devem ser preenchido de acordo com seu ambiente, tais como:
+Esse script ele instala o docker, depois cria o diretório conforme o padrão que está na documentação, logo após isso ele cria o docker-compose.yaml e lembrando que tem campos no arquivo do docker compose que devem ser preenchido de acordo com seu ambiente, tais como:
 
 DB_SERVER_HOST: Colocar o IP ou DNS do seu Zabbix
 
