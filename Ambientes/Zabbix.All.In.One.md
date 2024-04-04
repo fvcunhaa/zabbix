@@ -27,7 +27,7 @@ services:
       ZBX_HISTORYINDEXCACHESIZE: 1024M
       ZBX_TRENDCACHESIZE: 1024M
       ZBX_VALUECACHESIZE: 1024M
-      DB_SERVER_HOST: "3.135.201.144" 
+      DB_SERVER_HOST: "IP" 
       DB_PORT: 5432
       POSTGRES_USER: "zabbix"
       POSTGRES_PASSWORD: "zabbix123"
@@ -54,7 +54,7 @@ services:
     networks:
       - zabbix7
     environment:
-      DB_SERVER_HOST: "3.135.201.144" 
+      DB_SERVER_HOST: "IP"
       DB_PORT: 5432
       POSTGRES_USER: "zabbix"
       POSTGRES_PASSWORD: "zabbix123"
@@ -91,7 +91,7 @@ services:
       ZBX_HOSTNAME: "zabbix7"
       ZBX_SERVER_HOST: "127.0.0.1"
       ZBX_PASSIVE_ALLOW: "true"
-      ZBX_PASSIVESERVERS: "3.135.201.144" 
+      ZBX_PASSIVESERVERS: "IP" 
       ZBX_ENABLEREMOTECOMMANDS: "1"
       ZBX_ACTIVE_ALLOW: "false"
       ZBX_DEBUGLEVEL: "3"
