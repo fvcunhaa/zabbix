@@ -186,7 +186,9 @@ Todas as máquinas tem que estar com docker instalado.
 
 ### Os três primeiros comando é para instalar o docker e update do SO
 sudo curl -fsSL https://get.docker.com -o get-docker.sh
+
 sudo sh get-docker.sh
+
 sudo apt update
 
 ### Após isso recomendo criar uma pasta.
