@@ -1,0 +1,304 @@
+{
+    "zabbix_export": {
+        "version": "7.4",
+        "template_groups": [
+            {
+                "uuid": "7df96b18c230490a9a0a9e2307226338",
+                "name": "Templates"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "d113b58115ef4b018e634253f08abb3f",
+                "template": "TEMPLATE NESTED LLD - WEBINAR",
+                "name": "TEMPLATE NESTED LLD - WEBINAR",
+                "groups": [
+                    {
+                        "name": "Templates"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "04e71373c8724e7c9a2d95b4c1457b79",
+                        "name": "Get metric: Cluster Kubernetes",
+                        "type": "SCRIPT",
+                        "key": "get[cluster.k8s]",
+                        "history": "0",
+                        "value_type": "TEXT",
+                        "params": "return JSON.stringify({\n  \"clusters\": [\n    {\n      \"name\": \"cluster-master\",\n      \"role\": \"master\",\n      \"namespaces\": [\n        {\n          \"namespace\": \"producao-clusterMaster\",\n          \"pods\": [\n            {\n              \"pod\": \"pod-1\",\n              \"containers\": [\n                {\n                  \"container\": \"container-1\",\n                  \"cpu_usage\": 55.2,\n                  \"memory_usage\": 62.5\n                },\n                {\n                  \"container\": \"container-2\",\n                  \"cpu_usage\": 23.8,\n                  \"memory_usage\": 47.3\n                }\n              ]\n            },\n            {\n              \"pod\": \"pod-2\",\n              \"containers\": [\n                {\n                  \"container\": \"container-1\",\n                  \"cpu_usage\": 65.4,\n                  \"memory_usage\": 81.2\n                },\n                {\n                  \"container\": \"container-2\",\n                  \"cpu_usage\": 12.7,\n                  \"memory_usage\": 34.9\n                }\n              ]\n            }\n          ]\n        },\n        {\n          \"namespace\": \"homologacao-clusterMaster\",\n          \"pods\": [\n            {\n              \"pod\": \"pod-1\",\n              \"containers\": [\n                {\n                  \"container\": \"container-1\",\n                  \"cpu_usage\": 33.1,\n                  \"memory_usage\": 29.7\n                },\n                {\n                  \"container\": \"container-2\",\n                  \"cpu_usage\": 41.7,\n                  \"memory_usage\": 52.8\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"name\": \"cluster-worker\",\n      \"role\": \"worker\",\n      \"namespaces\": [\n        {\n          \"namespace\": \"producao-clusterWorker\",\n          \"pods\": [\n            {\n              \"pod\": \"pod-1\",\n              \"containers\": [\n                {\n                  \"container\": \"container-1\",\n                  \"cpu_usage\": 47.5,\n                  \"memory_usage\": 66.4\n                },\n                {\n                  \"container\": \"container-2\",\n                  \"cpu_usage\": 29.3,\n                  \"memory_usage\": 40.2\n                }\n              ]\n            }\n          ]\n        },\n        {\n          \"namespace\": \"homologacao-clusterWorker\",\n          \"pods\": [\n            {\n              \"pod\": \"pod-1\",\n              \"containers\": [\n                {\n                  \"container\": \"container-1\",\n                  \"cpu_usage\": 15.2,\n                  \"memory_usage\": 21.5\n                },\n                {\n                  \"container\": \"container-2\",\n                  \"cpu_usage\": 19.8,\n                  \"memory_usage\": 33.0\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  ]\n});",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.clusters"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "discovery_rules": [
+                    {
+                        "uuid": "a8ee253a8de64457b7c68ed23ce82d94",
+                        "name": "Discovery Cluster: {#CLUSTERNAME} NameSpace: {#NAMESPACE} Pod: {#PODNAME} Containers",
+                        "type": "NESTED",
+                        "key": "cluster[Containers.{#CLUSTERNAME}.{#NAMESPACE}.{#PODNAME}]",
+                        "item_prototypes": [
+                            {
+                                "uuid": "afc8d145f5af447e8497a5457d388961",
+                                "name": "{#CLUSTERNAME} NameSpace: {#NAMESPACE} Pod: {#PODNAME} Container: {#CONTAINERNAME} CPU Usage in %",
+                                "type": "DEPENDENT",
+                                "key": "cluster[containers.cpu.{#CLUSTERNAME}.{#NAMESPACE}.{#PODNAME}.{#CONTAINERNAME}]",
+                                "history": "1d",
+                                "value_type": "FLOAT",
+                                "trends": "7d",
+                                "units": "%",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$.[?(@.name==\"{#CLUSTERNAME}\")].namespaces[?(@.namespace==\"{#NAMESPACE}\")].pods[?(@.pod==\"{#PODNAME}\")].containers[?(@.container==\"{#CONTAINERNAME}\")].cpu_usage.first()"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "get[cluster.k8s]"
+                                },
+                                "tags": [
+                                    {
+                                        "tag": "cluster",
+                                        "value": "{#CLUSTERNAME}"
+                                    },
+                                    {
+                                        "tag": "namespace",
+                                        "value": "{#NAMESPACE}"
+                                    },
+                                    {
+                                        "tag": "pod",
+                                        "value": "{#PODNAME}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "c9e58eee6c2b47d19bedf689bd07de51",
+                                "name": "{#CLUSTERNAME} NameSpace: {#NAMESPACE} Pod: {#PODNAME} Container: {#CONTAINERNAME} Memory Usage in %",
+                                "type": "DEPENDENT",
+                                "key": "cluster[containers.memory.{#CLUSTERNAME}.{#NAMESPACE}.{#PODNAME}.{#CONTAINERNAME}]",
+                                "history": "1d",
+                                "value_type": "FLOAT",
+                                "trends": "7d",
+                                "units": "%",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$.[?(@.name==\"{#CLUSTERNAME}\")].namespaces[?(@.namespace==\"{#NAMESPACE}\")].pods[?(@.pod==\"{#PODNAME}\")].containers[?(@.container==\"{#CONTAINERNAME}\")].memory_usage.first()"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "get[cluster.k8s]"
+                                },
+                                "tags": [
+                                    {
+                                        "tag": "cluster",
+                                        "value": "{#CLUSTERNAME}"
+                                    },
+                                    {
+                                        "tag": "namespace",
+                                        "value": "{#NAMESPACE}"
+                                    },
+                                    {
+                                        "tag": "pod",
+                                        "value": "{#PODNAME}"
+                                    }
+                                ]
+                            }
+                        ],
+                        "parent_discovery_rule": {
+                            "key": "discovery[pods.{#CLUSTERNAME}.{#NAMESPACE}]"
+                        },
+                        "lld_macro_paths": [
+                            {
+                                "lld_macro": "{#CONTAINERNAME}",
+                                "path": "$.container"
+                            }
+                        ],
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.containers"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "9ac1763c634a4ea1ae5462fc7bb118d7",
+                        "name": "Discovery Cluster Kubernetes",
+                        "type": "DEPENDENT",
+                        "key": "discovery[cluster.kubernetes]",
+                        "filter": {
+                            "conditions": [
+                                {
+                                    "macro": "{#CLUSTERNAME}",
+                                    "value": "cluster-master"
+                                }
+                            ]
+                        },
+                        "lifetime_type": "DELETE_IMMEDIATELY",
+                        "item_prototypes": [
+                            {
+                                "uuid": "a93ebdcf5254406880eae46c80966eba",
+                                "name": "{#CLUSTERNAME}: Role",
+                                "type": "DEPENDENT",
+                                "key": "cluster[role.{#CLUSTERNAME}]",
+                                "history": "1d",
+                                "value_type": "CHAR",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$.[?(@.name==\"cluster-master\")].role.first()"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "get[cluster.k8s]"
+                                },
+                                "tags": [
+                                    {
+                                        "tag": "cluster",
+                                        "value": "{#CLUSTERNAME}"
+                                    }
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "get[cluster.k8s]"
+                        },
+                        "lld_macro_paths": [
+                            {
+                                "lld_macro": "{#CLUSTERNAME}",
+                                "path": "$.name"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "9496f5e53356438082027538ba5d2ad0",
+                        "name": "Discovery NameSpaces Cluster {#CLUSTERNAME}",
+                        "type": "NESTED",
+                        "key": "discovery[namespaces.{#CLUSTERNAME}]",
+                        "lifetime": "1d",
+                        "item_prototypes": [
+                            {
+                                "uuid": "889f5dc5b58e498cbc877095e6ce1786",
+                                "name": "Cluster {#CLUSTERNAME}: Namespace {#NAMESPACE}",
+                                "type": "DEPENDENT",
+                                "key": "cluster[namespace.{#CLUSTERNAME}.{#NAMESPACE}]",
+                                "history": "1d",
+                                "value_type": "CHAR",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$.[?(@.name==\"{#CLUSTERNAME}\")].namespaces[?(@.namespace==\"{#NAMESPACE}\")].namespace.first()"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "get[cluster.k8s]"
+                                },
+                                "tags": [
+                                    {
+                                        "tag": "cluster",
+                                        "value": "{#CLUSTERNAME}"
+                                    },
+                                    {
+                                        "tag": "namespace",
+                                        "value": "{#NAMESPACE}"
+                                    }
+                                ]
+                            }
+                        ],
+                        "parent_discovery_rule": {
+                            "key": "discovery[cluster.kubernetes]"
+                        },
+                        "lld_macro_paths": [
+                            {
+                                "lld_macro": "{#NAMESPACE}",
+                                "path": "$.namespace"
+                            }
+                        ],
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.namespaces"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "8b58869c8b7d42478ed102bc05efe214",
+                        "name": "Discovery Cluster: {#CLUSTERNAME} NameSpace: {#NAMESPACE} Pods",
+                        "type": "NESTED",
+                        "key": "discovery[pods.{#CLUSTERNAME}.{#NAMESPACE}]",
+                        "lifetime": "1d",
+                        "item_prototypes": [
+                            {
+                                "uuid": "f13a5822852041448056df0ad743da82",
+                                "name": "Cluster: {#CLUSTERNAME} NameSpace: {#NAMESPACE} Pod: {#PODNAME}",
+                                "type": "DEPENDENT",
+                                "key": "cluster[pods.{#CLUSTERNAME}.{#NAMESPACE}.{#PODNAME}]",
+                                "history": "1d",
+                                "value_type": "CHAR",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$.[?(@.name==\"{#CLUSTERNAME}\")].namespaces[?(@.namespace==\"{#NAMESPACE}\")].pods[?(@.pod==\"{#PODNAME}\")].pod.first()"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "get[cluster.k8s]"
+                                },
+                                "tags": [
+                                    {
+                                        "tag": "cluster",
+                                        "value": "{#CLUSTERNAME}"
+                                    },
+                                    {
+                                        "tag": "namespace",
+                                        "value": "{#NAMESPACE}"
+                                    },
+                                    {
+                                        "tag": "pod",
+                                        "value": "{#PODNAME}"
+                                    }
+                                ]
+                            }
+                        ],
+                        "parent_discovery_rule": {
+                            "key": "discovery[namespaces.{#CLUSTERNAME}]"
+                        },
+                        "lld_macro_paths": [
+                            {
+                                "lld_macro": "{#PODNAME}",
+                                "path": "$.pod"
+                            }
+                        ],
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.pods"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
