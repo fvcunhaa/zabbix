@@ -36,47 +36,46 @@ sudo mkdir -p /home/zabbix-proxy/
 
 # Agora é a criação do arquivo docker-compose.yaml
 cat <<EOF > /home/zabbix-proxy/docker-compose.yaml
-version: '3.8'
 services:
   zabbix-proxy:
     container_name: "zbx-proxy"
-    image: zabbix/zabbix-proxy-sqlite3:6.4.4-ubuntu
+    image: zabbix/zabbix-proxy-sqlite3:7.4.2-alpine
     user: root
     environment:
       - ZBX_PROXYMODE=0  # 0 - active proxy and 1 - passive proxy
-      - ZBX_SERVER_HOST=      # IP OU DNS DO SEU ZABBIX SERVER
+      - ZBX_SERVER_HOST= 
       - ZBX_SERVER_PORT=10051
-      - ZBX_HOSTNAME=prx-teste01
+      - ZBX_HOSTNAME=prx-teste
       - ZBX_DEBUGLEVEL=3  # 0 - basic info, 1 - critical, 2 - error, 3 - warnings, 4 - for debugging, 5 - extended debugging
       - ZBX_ENABLEREMOTECOMMANDS=1
-      - ZBX_PROXYLOCALBUFFER=0  # mantém cópia dos eventos mesmo depois de enviar ao server (valor em horas)
-      - ZBX_PROXYOFFLINEBUFFER=1  # 6 horas
-      - ZBX_PROXYHEARTBEATFREQUENCY=60  # 60 seg
-      - ZBX_CONFIGFREQUENCY=300  # 300 Seg
-      - ZBX_DATASENDERFREQUENCY=1  # 1 Seg
-      - ZBX_STARTHISTORYPOLLERS=3  # ----------------
-      - ZBX_STARTPOLLERS=5 #500 
-      - ZBX_STARTPREPROCESSORS=5 #500
-      - ZBX_STARTPOLLERSUNREACHABLE=30   #300
-      - ZBX_STARTPINGERS=5  #100
+      - ZBX_PROXYLOCALBUFFER=0 
+      - ZBX_PROXYOFFLINEBUFFER=4 
+      - ZBX_PROXYHEARTBEATFREQUENCY=60  
+      - ZBX_CONFIGFREQUENCY=300  
+      - ZBX_DATASENDERFREQUENCY=1 
+      - ZBX_STARTHISTORYPOLLERS=3  
+      - ZBX_STARTPOLLERS=5
+      - ZBX_STARTPREPROCESSORS=5 
+      - ZBX_STARTPOLLERSUNREACHABLE=5  
+      - ZBX_STARTPINGERS=5  
       - ZBX_STARTDISCOVERERS=3
       - ZBX_STARTHTTPPOLLERS=5
       - ZBX_HOUSEKEEPINGFREQUENCY=1
       - ZBX_STARTVMWARECOLLECTORS=1
-      - ZBX_CACHESIZE=128M
-      - ZBX_STARTDBSYNCERS=20 #20
-      - ZBX_HISTORYCACHESIZE=256M
-      - ZBX_HISTORYINDEXCACHESIZE=256M
-      - ZBX_TIMEOUT=30  # 30 Seg
-      - ZBX_UNREACHABLEPERIOD=400
-      - ZBX_UNAVAILABLEDELAY=400
-      - ZBX_UNREACHABLEDELAY=400
+      - ZBX_CACHESIZE=8M
+      - ZBX_STARTDBSYNCERS=4
+      - ZBX_HISTORYCACHESIZE=16M
+      - ZBX_HISTORYINDEXCACHESIZE=4M
+      - ZBX_TIMEOUT=10 # 
+      - ZBX_UNREACHABLEPERIOD=45
+      - ZBX_UNAVAILABLEDELAY=60
+      - ZBX_UNREACHABLEDELAY=15
       - ZBX_LOGSLOWQUERIES=3000
       - ZBX_STATSALLOWEDIP=127.0.0.1
       - ZBX_TLSCONNECT=psk
       - ZBX_TLSACCEPT=psk
-      - ZBX_TLSPSKIDENTITY=prx-teste01
-      - ZBX_TLSPSKFILE=zabbix_proxy.psk
+      - ZBX_TLSPSKIDENTITY=prx-teste
+      - ZBX_TLSPSKFILE=/var/lib/zabbix/enc/zabbix_proxy.psk
     restart: always
     volumes:
        - /etc/localtime:/etc/localtime:ro
