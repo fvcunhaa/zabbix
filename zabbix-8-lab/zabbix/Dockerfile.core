@@ -1,0 +1,53 @@
+FROM golang:1.25-bookworm
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG ZABBIX_SOURCE_URL=https://cdn.zabbix.com/zabbix/nightly/pre-zabbix-8.0.0rc1-9b7cfbc0cba.tar.gz
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential pkg-config ca-certificates curl wget git \
+    libpq-dev libpcre2-dev libevent-dev libcurl4-openssl-dev libxml2-dev \
+    libsnmp-dev libopenipmi-dev libssh2-1-dev libc-ares-dev libldap2-dev \
+    libssl-dev unixodbc-dev zlib1g-dev libzstd-dev \
+    postgresql-client fping iputils-ping traceroute snmp chromium \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --system zabbix && useradd --system --gid zabbix --home-dir /var/lib/zabbix --shell /usr/sbin/nologin zabbix \
+    && mkdir -p /var/lib/zabbix /var/log/zabbix /etc/zabbix /usr/src/zabbix \
+    && chown -R zabbix:zabbix /var/lib/zabbix /var/log/zabbix
+
+RUN curl -fL "$ZABBIX_SOURCE_URL" -o /tmp/zabbix-source.tar.gz \
+    && tar -xzf /tmp/zabbix-source.tar.gz -C /usr/src/zabbix --strip-components=1 \
+    && cd /usr/src/zabbix \
+    && export CFLAGS="-O2 -std=gnu99" \
+    && ./configure \
+       --prefix=/usr/local \
+       --sysconfdir=/etc/zabbix \
+       --enable-server \
+       --enable-agent2 \
+       --enable-webservice \
+       --with-postgresql \
+       --with-net-snmp \
+       --with-libcurl \
+       --with-libxml2 \
+       --with-openipmi \
+       --with-ssh2 \
+       --with-ares \
+       --with-ldap \
+       --with-openssl \
+       --with-unixodbc \
+       --with-zlib \
+    && make -j"$(nproc)" \
+    && make install \
+    && cp -a database/postgresql /usr/share/zabbix-postgresql \
+    && cp -a database/clickhouse /usr/share/zabbix-clickhouse \
+    && rm -f /tmp/zabbix-source.tar.gz
+
+COPY docker/server/entrypoint.sh /usr/local/bin/zabbix-server-entrypoint
+COPY docker/agent2/entrypoint.sh /usr/local/bin/zabbix-agent2-entrypoint
+COPY docker/web-service/entrypoint.sh /usr/local/bin/zabbix-web-service-entrypoint
+RUN chmod +x /usr/local/bin/zabbix-server-entrypoint \
+    /usr/local/bin/zabbix-agent2-entrypoint \
+    /usr/local/bin/zabbix-web-service-entrypoint \
+    /usr/share/zabbix-clickhouse/*.sh
+
+EXPOSE 10050 10051 10053
