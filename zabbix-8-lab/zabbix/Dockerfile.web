@@ -1,0 +1,30 @@
+FROM ubuntu:24.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG ZABBIX_SOURCE_URL=https://cdn.zabbix.com/zabbix/nightly/pre-zabbix-8.0.0rc1-9b7cfbc0cba.tar.gz
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ca-certificates nginx \
+    php8.3-fpm php8.3-pgsql php8.3-bcmath php8.3-mbstring php8.3-gd \
+    php8.3-xml php8.3-ldap php8.3-curl php8.3-zip php8.3-intl php8.3-cli \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fL "$ZABBIX_SOURCE_URL" -o /tmp/zabbix-source.tar.gz \
+    && mkdir -p /usr/src/zabbix /var/www/zabbix \
+    && tar -xzf /tmp/zabbix-source.tar.gz -C /usr/src/zabbix --strip-components=1 \
+    && cp -a /usr/src/zabbix/ui/. /var/www/zabbix/ \
+    && rm -f /tmp/zabbix-source.tar.gz \
+    && chown -R www-data:www-data /var/www/zabbix
+
+COPY docker/web/nginx.conf /etc/nginx/sites-available/default
+COPY docker/web/entrypoint.sh /usr/local/bin/zabbix-web-entrypoint
+RUN chmod +x /usr/local/bin/zabbix-web-entrypoint \
+    && sed -i 's/^;cgi.fix_pathinfo=.*/cgi.fix_pathinfo=0/' /etc/php/8.3/fpm/php.ini \
+    && sed -i 's/^post_max_size =.*/post_max_size = 32M/' /etc/php/8.3/fpm/php.ini \
+    && sed -i 's/^upload_max_filesize =.*/upload_max_filesize = 16M/' /etc/php/8.3/fpm/php.ini \
+    && sed -i 's/^max_execution_time =.*/max_execution_time = 300/' /etc/php/8.3/fpm/php.ini \
+    && sed -i 's/^max_input_time =.*/max_input_time = 300/' /etc/php/8.3/fpm/php.ini \
+    && sed -i 's/^memory_limit =.*/memory_limit = 256M/' /etc/php/8.3/fpm/php.ini
+
+EXPOSE 8080
+ENTRYPOINT ["/usr/local/bin/zabbix-web-entrypoint"]
