@@ -39,13 +39,13 @@ cat <<EOF > /home/zabbix-proxy/docker-compose.yaml
 services:
   zabbix-proxy:
     container_name: "zbx-proxy"
-    image: zabbix/zabbix-proxy-sqlite3:7.4.2-alpine
+    image: zabbix/zabbix-proxy-sqlite3:trunk-alpine
     user: root
     environment:
       - ZBX_PROXYMODE=0  # 0 - active proxy and 1 - passive proxy
       - ZBX_SERVER_HOST= 
       - ZBX_SERVER_PORT=10051
-      - ZBX_HOSTNAME=prx-teste
+      - ZBX_HOSTNAME=prx-zbx8-apm
       - ZBX_DEBUGLEVEL=3  # 0 - basic info, 1 - critical, 2 - error, 3 - warnings, 4 - for debugging, 5 - extended debugging
       - ZBX_ENABLEREMOTECOMMANDS=1
       - ZBX_PROXYLOCALBUFFER=0 
@@ -62,6 +62,14 @@ services:
       - ZBX_STARTHTTPPOLLERS=5
       - ZBX_HOUSEKEEPINGFREQUENCY=1
       - ZBX_STARTVMWARECOLLECTORS=1
+      - ZBX_STARTTELEMETRYQUERYPOLLERS: "1"
+      - ZBX_TELEMETRYPROVIDER_0: ""
+      - ZBX_TELEMETRYPROVIDER_0_USERNAME: ""
+      #- ZBX_TELEMETRYPROVIDER_0_USERNAME_FILE: ""
+      - ZBX_TELEMETRYPROVIDER_0_PASSWORD: ""
+      #- ZBX_TELEMETRYPROVIDER_0_PASSWORD_FILE: ""
+      #- ZBX_TELEMETRYPROVIDER_0_SSL_KEY_PASSWORD: ""
+      #- ZBX_TELEMETRYPROVIDER_0_SSL_KEY_PASSWORD_FILE: ""
       - ZBX_CACHESIZE=8M
       - ZBX_STARTDBSYNCERS=4
       - ZBX_HISTORYCACHESIZE=16M
@@ -74,7 +82,7 @@ services:
       - ZBX_STATSALLOWEDIP=127.0.0.1
       - ZBX_TLSCONNECT=psk
       - ZBX_TLSACCEPT=psk
-      - ZBX_TLSPSKIDENTITY=prx-teste
+      - ZBX_TLSPSKIDENTITY=prx-zbx8-apm
       - ZBX_TLSPSKFILE=/var/lib/zabbix/enc/zabbix_proxy.psk
     restart: always
     volumes:
